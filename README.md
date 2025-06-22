@@ -1,6 +1,4 @@
-# KSTBot
-
-***Kematin Steam Trade Bot***
+# KTrade
 
 - [Tradeback table](https://tradeback.io/ru/comparison)
 - [Ste trade bot](https://www.stetrade.ru/products/ste-pro/)
