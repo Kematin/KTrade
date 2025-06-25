@@ -1,1 +1,6 @@
 venv
+.env
+uv.lock
+.venv
+logs
+__pycache__
