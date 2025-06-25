@@ -8,7 +8,7 @@ from alembic import context
 from config import get_config
 from setup.base import Base
 
-MODELS = ["models.table:Item"]
+MODELS = ["models.table:CSGOItem", "models.table:CustomItem", "models.table:ItemOnSale"]
 
 custom_config = get_config()
 
