@@ -37,3 +37,25 @@ async def init_db():
 
 async def teardown():
     await engine.dispose()
+
+
+async def create_test_data():
+    from sqlalchemy import insert
+
+    from models.table import CSGOItem, Currency, Quality
+
+    items_data = [
+        {
+            "name": "AK-47 | Redline",
+            "image_url": "https://steamcommunity.com/image/ak47_redline.jpg",
+            "price": 45.99,
+            "quality": Quality.MW,
+            "currency": Currency.USD,
+            "float_value": 0.12345678,
+            "pattern": 123,
+        },
+    ]
+
+    async with sessionmaker() as session:
+        await session.execute(insert(CSGOItem), items_data)
+        await session.commit()

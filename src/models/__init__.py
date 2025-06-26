@@ -1,3 +1,3 @@
-from .table import Item
+from .table import CSGOItem, CustomItem, ItemOnSale
 
-__all__ = [Item]
+__all__ = [CSGOItem, CustomItem, ItemOnSale]
