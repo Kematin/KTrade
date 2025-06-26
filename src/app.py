@@ -3,21 +3,25 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
 
 from config import get_config
 from routes import routes
-from setup import configure_logger, init_db, teardown
+from setup import configure_logger, create_test_data, init_db, teardown
+
+config = get_config()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    configure_logger(subfolder="fastapi")
+    configure_logger()
     await init_db()
+    if config.debug:
+        logger.debug("Create test data")
+        await create_test_data()
     yield
     await teardown()
 
-
-config = get_config()
 
 app = FastAPI(lifespan=lifespan, title="Notes Backend")
 

@@ -24,16 +24,16 @@ class Marketplace(PyEnum):
 
 
 class Quality(PyEnum):
-    BATTLE_SCARRED = "BS"
-    WELL_WORN = "WW"
-    FIELD_TESTED = "FT"
-    MINIMAL_WEAR = "MW"
-    FACTORY_NEW = "FN"
+    BS = "BS"
+    WW = "WW"
+    FT = "FT"
+    MW = "MW"
+    FN = "FN"
 
 
 class Currency(PyEnum):
-    USD = "$"
-    RUB = "₽"
+    USD = "USD"
+    RUB = "RUB"
 
 
 class CustomItem(Base):
@@ -56,7 +56,7 @@ class CSGOItem(Base):
     price = Column(NUMERIC(12, 2))
     quality = Column(Enum(Quality), nullable=False)
     currency = Column(Enum(Currency), default=Currency.USD)
-    float_value = Column(NUMERIC(2, 16))
+    float_value = Column(NUMERIC(18, 16))
     pattern = Column(Integer)
 
     def __repr__(self):
@@ -75,7 +75,7 @@ class ItemOnSale(Base):
     selling_price = Column(NUMERIC(12, 2), nullable=False)
     source_marketplace = Column(Enum(Marketplace), nullable=False)
     target_marketplace = Column(Enum(Marketplace), nullable=False)
-    currency = Column(String(3), nullable=False, default="USD")
+    currency = Column(Enum(Currency), default=Currency.USD)
     is_sold = Column(Boolean, default=False)
 
     csgo_item = relationship("CSGOItem")

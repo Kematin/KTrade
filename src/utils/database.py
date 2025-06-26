@@ -26,5 +26,5 @@ def provide_session(commit: bool = True):
 
 
 async def get_db():
-    async with sessionmaker as session:
+    async with sessionmaker() as session:
         yield session
