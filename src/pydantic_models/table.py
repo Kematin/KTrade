@@ -59,6 +59,8 @@ class ItemOnSaleCreate(ItemOnSaleBase):
 
     @model_validator(mode="after")
     def check_item_reference(cls, model):
+        if model.custom_item_id == -1:
+            return model
         if model.csgo_item_id is None and model.custom_item_id is None:
             raise ValueError("Either csgo_item_id or custom_item_id must be provided")
         if model.csgo_item_id and model.custom_item_id:

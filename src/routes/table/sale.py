@@ -6,8 +6,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from models import ItemOnSale
-from pydantic_models import ItemOnSaleCreate, ItemOnSaleResponse
+from models import CustomItem, ItemOnSale
+from pydantic_models import (
+    CustomItemCreate,
+    CustomItemResponse,
+    ItemOnSaleCreate,
+    ItemOnSaleResponse,
+)
 from utils.database import get_db
 
 route = APIRouter(prefix="/sale", tags=["Sale"])
@@ -75,55 +80,77 @@ async def change_status_item(item_id: int, session: AsyncSession = Depends(get_d
     return {"message": "Status updated"}
 
 
-"""
-
-
 @route.delete("/{item_id}")
-async def remove_item(item_id: int, db: AsyncSession = Depends(get_db)):
-    item = await db.get(ItemOnSale, item_id)
+async def remove_item(item_id: int, session: AsyncSession = Depends(get_db)):
+    item = await session.get(ItemOnSale, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    await db.delete(item)
-    await db.commit()
+    await session.delete(item)
+    await session.commit()
     return {"message": "Item deleted"}
 
 
 @route.post("/custom", response_model=CustomItemResponse)
 async def add_custom_item(
-    item_data: CustomItemCreate, db: AsyncSession = Depends(get_db)
+    item_data: CustomItemCreate, session: AsyncSession = Depends(get_db)
 ):
-    db_item = CustomItem(**item_data.dict())
-    db.add(db_item)
-    await db.commit()
-    await db.refresh(db_item)
+    db_item = CustomItem(**item_data.model_dump())
+    session.add(db_item)
+    await session.commit()
+    await session.refresh(db_item)
     return db_item
+
+
+@route.post("/custom-with-sale", response_model=ItemOnSaleResponse)
+async def add_custom_item_with_sale(
+    custom_item_data: CustomItemCreate,
+    sale_data: ItemOnSaleCreate,
+    session: AsyncSession = Depends(get_db),
+):
+    if not sale_data.custom_item_id:
+        db_custom_item = CustomItem(**custom_item_data.model_dump())
+        session.add(db_custom_item)
+        await session.flush()
+
+    sale_data_dict = sale_data.model_dump()
+    sale_data_dict.update({"custom_item_id": db_custom_item.id})
+
+    db_sale_item = ItemOnSale(**sale_data_dict)
+    session.add(db_sale_item)
+    await session.commit()
+
+    result = await session.execute(
+        select(ItemOnSale)
+        .options(selectinload(ItemOnSale.custom_item))
+        .where(ItemOnSale.id == db_sale_item.id)
+    )
+
+    return result.scalar_one()
 
 
 @route.put("/custom/{item_id}", response_model=CustomItemResponse)
 async def change_custom_item(
-    item_id: int, item_data: CustomItemCreate, db: AsyncSession = Depends(get_db)
+    item_id: int, item_data: CustomItemCreate, session: AsyncSession = Depends(get_db)
 ):
-    item = await db.get(CustomItem, item_id)
+    item = await session.get(CustomItem, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    for field, value in item_data.dict().items():
+    for field, value in item_data.model_dump().items():
         setattr(item, field, value)
 
-    await db.commit()
-    await db.refresh(item)
+    await session.commit()
+    await session.refresh(item)
     return item
 
 
 @route.delete("/custom/{item_id}")
-async def remove_custom_item(item_id: int, db: AsyncSession = Depends(get_db)):
-    item = await db.get(CustomItem, item_id)
+async def remove_custom_item(item_id: int, session: AsyncSession = Depends(get_db)):
+    item = await session.get(CustomItem, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
 
-    await db.delete(item)
-    await db.commit()
+    await session.delete(item)
+    await session.commit()
     return {"message": "Custom item deleted"}
-
-"""

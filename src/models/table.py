@@ -43,6 +43,13 @@ class CustomItem(Base):
     name = Column(String(150), nullable=False)
     image_url = Column(String(255))
 
+    sales = relationship(
+        "ItemOnSale",
+        back_populates="custom_item",
+        cascade="all, delete",
+        passive_deletes=True,
+    )
+
     def __repr__(self):
         return f"<CustomItem(id={self.id}, name={self.name})>"
 
@@ -58,6 +65,14 @@ class CSGOItem(Base):
     currency = Column(Enum(Currency), default=Currency.USD)
     float_value = Column(NUMERIC(18, 16))
     pattern = Column(Integer)
+    is_void = Column(Boolean, default=False)
+
+    sales = relationship(
+        "ItemOnSale",
+        back_populates="csgo_item",
+        cascade="all, delete",
+        passive_deletes=True,
+    )
 
     def __repr__(self):
         return f"<CSGOItem(id={self.id}, name={self.name}, price={self.price} {self.currency})>"
@@ -78,8 +93,15 @@ class ItemOnSale(Base):
     currency = Column(Enum(Currency), default=Currency.USD)
     is_sold = Column(Boolean, default=False)
 
-    csgo_item = relationship("CSGOItem")
-    custom_item = relationship("CustomItem")
+    csgo_item = relationship(
+        "CSGOItem",
+        back_populates="sales",
+    )
+
+    custom_item = relationship(
+        "CustomItem",
+        back_populates="sales",
+    )
 
     @property
     def item(self):
