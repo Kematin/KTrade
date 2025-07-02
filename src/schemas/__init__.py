@@ -1,4 +1,6 @@
-from .table import (
+from .base import CSGOItemBase, CustomItemBase
+from .enums import Currency, GameId, GameType, Marketplace, Quality
+from .items import (
     CSGOItemResponse,
     CustomItemCreate,
     CustomItemResponse,
@@ -8,7 +10,7 @@ from .table import (
     ItemOnSaleUpdate,
 )
 
-__all__ = [
+pydantic_items = [
     CSGOItemResponse,
     CustomItemCreate,
     CustomItemResponse,
@@ -17,3 +19,8 @@ __all__ = [
     ItemOnSaleCreate,
     ItemOnSaleResponse,
 ]
+
+enums = [Currency, GameType, Marketplace, Quality, GameId]
+base = [CSGOItemBase, CustomItemBase]
+
+__all__ = enums + pydantic_items + base
