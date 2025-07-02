@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from models import CustomItem, ItemOnSale
-from pydantic_models import (
+from schemas import (
     CustomItemCreate,
     CustomItemResponse,
     ItemOnSaleCreate,

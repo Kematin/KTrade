@@ -15,6 +15,13 @@ def get_model_config(env_dir: str = f"{BASE_DIR}/.env"):
     return config
 
 
+class SteamSettings(BaseSettings):
+    apikey: str = Field(alias="STEAM_API_KEY")
+    client_id: str = Field(alias="STEAM_CLIENT_ID")
+
+    model_config = get_model_config()
+
+
 class DBSettings(BaseSettings):
     host: str = Field(alias="DB_HOST")
     port: str = Field(alias="DB_PORT")
@@ -34,6 +41,7 @@ class Settings(BaseSettings):
     origins: List[str] = Field(alias="API_ORIGINS")
 
     _db: DBSettings = None
+    _steam: SteamSettings = None
 
     model_config = get_model_config()
 
@@ -42,6 +50,12 @@ class Settings(BaseSettings):
         if self._db is None:
             self._db = DBSettings()
         return self._db
+
+    @property
+    def steam(self) -> SteamSettings:
+        if self._steam is None:
+            self._steam = SteamSettings()
+        return self._steam
 
 
 @lru_cache()

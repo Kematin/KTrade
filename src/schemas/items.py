@@ -1,18 +1,9 @@
 from typing import Optional
 
-from pydantic import BaseModel, HttpUrl, model_validator
+from pydantic import BaseModel, model_validator
 
-from models.table import Currency, GameType, Marketplace, Quality
-
-
-class CSGOItemBase(BaseModel):
-    name: str
-    image_url: Optional[HttpUrl] = None
-    price: float
-    quality: Quality
-    currency: Currency = Currency.USD
-    float_value: float
-    pattern: int
+from .base import CSGOItemBase, CustomItemBase
+from .enums import Currency, GameType, Marketplace
 
 
 class CSGOItemResponse(CSGOItemBase):
@@ -20,11 +11,6 @@ class CSGOItemResponse(CSGOItemBase):
 
     class Config:
         from_attributes = True
-
-
-class CustomItemBase(BaseModel):
-    name: str
-    image_url: str
 
 
 class CustomItemCreate(CustomItemBase):

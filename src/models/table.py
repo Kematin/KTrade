@@ -1,39 +1,9 @@
-from enum import Enum as PyEnum
-
 from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import NUMERIC
 from sqlalchemy.orm import relationship
 
+from schemas import Currency, GameType, Marketplace, Quality
 from setup.base import Base
-
-
-class GameType(PyEnum):
-    DOTA = "Dota 2"
-    CS2 = "Counter-Strike 2"
-    TF2 = "Team Fortress 2"
-    RUST = "Rust"
-    CSGO = "CSGO"
-
-
-class Marketplace(PyEnum):
-    STEAM = "Steam"
-    TM = "TMarket"
-    CSMONEY = "CSMoney"
-    LOOTFARM = "LootFarm"
-    TRADEIT = "TradeIT"
-
-
-class Quality(PyEnum):
-    BS = "BS"
-    WW = "WW"
-    FT = "FT"
-    MW = "MW"
-    FN = "FN"
-
-
-class Currency(PyEnum):
-    USD = "USD"
-    RUB = "RUB"
 
 
 class CustomItem(Base):
