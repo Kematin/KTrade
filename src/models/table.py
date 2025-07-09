@@ -1,9 +1,8 @@
+from schemas import Currency, GameType, Marketplace, Quality
+from setup.base import Base
 from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import NUMERIC
 from sqlalchemy.orm import relationship
-
-from schemas import Currency, GameType, Marketplace, Quality
-from setup.base import Base
 
 
 class CustomItem(Base):
@@ -12,6 +11,10 @@ class CustomItem(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(150), nullable=False)
     image_url = Column(String(255))
+    # TODO add
+    # is_void = Column(Boolean, default=False)
+    # price = Column(NUMERIC(12, 2))
+    # currency = Column(Enum(Currency), default=Currency.USD)
 
     sales = relationship(
         "ItemOnSale",
