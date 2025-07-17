@@ -8,6 +8,7 @@ from .items import (
     ItemOnSaleCreate,
     ItemOnSaleResponse,
     ItemOnSaleUpdate,
+    ItemOnSaleWithCustomItemCreate,
 )
 
 pydantic_items = [
@@ -18,6 +19,7 @@ pydantic_items = [
     ItemOnSaleUpdate,
     ItemOnSaleCreate,
     ItemOnSaleResponse,
+    ItemOnSaleWithCustomItemCreate,
 ]
 
 enums = [Currency, GameType, Marketplace, Quality, GameId]

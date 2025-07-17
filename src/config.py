@@ -15,6 +15,14 @@ def get_model_config(env_dir: str = f"{BASE_DIR}/.env"):
     return config
 
 
+class ImageSettings(BaseSettings):
+    directory: Path = Path("static/images")
+    allower_extensions: set = {".jpg", ".jpeg", ".png", ".webp"}
+    max_size_mb: int = 5
+
+    model_config = get_model_config()
+
+
 class SteamSettings(BaseSettings):
     apikey: str = Field(alias="STEAM_API_KEY")
     client_id: str = Field(alias="STEAM_CLIENT_ID")
@@ -41,6 +49,7 @@ class Settings(BaseSettings):
     origins: List[str] = Field(alias="API_ORIGINS")
 
     _db: DBSettings = None
+    _image: ImageSettings = None
     _steam: SteamSettings = None
 
     model_config = get_model_config()
@@ -56,6 +65,12 @@ class Settings(BaseSettings):
         if self._steam is None:
             self._steam = SteamSettings()
         return self._steam
+
+    @property
+    def image(self) -> ImageSettings:
+        if self._image is None:
+            self._image = ImageSettings()
+        return self._image
 
 
 @lru_cache()

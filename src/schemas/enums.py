@@ -3,10 +3,10 @@ from enum import Enum as PyEnum
 
 class GameType(PyEnum):
     DOTA = "Dota 2"
-    CS2 = "Counter-Strike 2"  # ! Delete
+    CS2 = "Counter-Strike 2"
     TF2 = "Team Fortress 2"
     RUST = "Rust"
-    CSGO = "CSGO"
+    OTHER = "Other"
 
 
 class Marketplace(PyEnum):

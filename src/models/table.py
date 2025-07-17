@@ -12,6 +12,10 @@ class CustomItem(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(150), nullable=False)
     image_url = Column(String(255))
+    is_void = Column(Boolean, default=False)
+    price = Column(NUMERIC(12, 2))
+    currency = Column(Enum(Currency), default=Currency.USD)
+    game_type = Column(Enum(GameType), nullable=False)
 
     sales = relationship(
         "ItemOnSale",
@@ -55,9 +59,9 @@ class ItemOnSale(Base):
     csgo_item_id = Column(Integer, ForeignKey("csgo_items.id"), nullable=True)
     custom_item_id = Column(Integer, ForeignKey("custom_items.id"), nullable=True)
     quantity = Column(Integer, nullable=False, default=1)
-    game_type = Column(Enum(GameType), nullable=False)
     purchase_price = Column(NUMERIC(12, 2), nullable=False)
     selling_price = Column(NUMERIC(12, 2), nullable=False)
+    commission = Column(Integer, default=0)
     source_marketplace = Column(Enum(Marketplace), nullable=False)
     target_marketplace = Column(Enum(Marketplace), nullable=False)
     currency = Column(Enum(Currency), default=Currency.USD)

@@ -4,3 +4,4 @@ uv.lock
 .venv
 logs
 __pycache__
+static

@@ -7,7 +7,7 @@ from loguru import logger
 
 from config import get_config
 from routes import routes
-from setup import configure_logger, create_test_data, init_db, teardown
+from setup import configure_logger, create_paths, create_test_data, init_db, teardown
 
 config = get_config()
 
@@ -15,6 +15,7 @@ config = get_config()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logger()
+    create_paths(config)
     await init_db()
     if config.debug:
         logger.debug("Create test data")
