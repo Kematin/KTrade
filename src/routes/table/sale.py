@@ -1,7 +1,6 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
-from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -9,9 +8,9 @@ from sqlalchemy.orm import selectinload
 from models import CustomItem, ItemOnSale
 from schemas import (
     CustomItemCreate,
-    CustomItemResponse,
     ItemOnSaleCreate,
     ItemOnSaleResponse,
+    ItemOnSaleWithCustomItemCreate,
 )
 from utils.database import get_db
 
@@ -42,14 +41,9 @@ async def get_sale(
 
 
 @route.post("/", response_model=ItemOnSaleResponse)
-async def add_item(
+async def add_sale(
     item_data: ItemOnSaleCreate, session: AsyncSession = Depends(get_db)
 ):
-    if item_data.game_type == "csgo" and not item_data.csgo_item_id:
-        raise HTTPException(status_code=400, detail="CSGO item ID required")
-    if item_data.game_type == "custom" and not item_data.custom_item_id:
-        raise HTTPException(status_code=400, detail="Custom item ID required")
-
     db_item = ItemOnSale(**item_data.model_dump())
     session.add(db_item)
     await session.commit()
@@ -68,8 +62,8 @@ async def add_item(
     return full_item
 
 
-@route.post("/sold/{item_id}", status_code=200)
-async def change_status_item(item_id: int, session: AsyncSession = Depends(get_db)):
+@route.put("/sold/{item_id}", status_code=200)
+async def change_status_sale(item_id: int, session: AsyncSession = Depends(get_db)):
     item = await session.get(ItemOnSale, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -81,7 +75,7 @@ async def change_status_item(item_id: int, session: AsyncSession = Depends(get_d
 
 
 @route.delete("/{item_id}")
-async def remove_item(item_id: int, session: AsyncSession = Depends(get_db)):
+async def remove_sale(item_id: int, session: AsyncSession = Depends(get_db)):
     item = await session.get(ItemOnSale, item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -91,27 +85,17 @@ async def remove_item(item_id: int, session: AsyncSession = Depends(get_db)):
     return {"message": "Item deleted"}
 
 
-@route.post("/custom", response_model=CustomItemResponse)
-async def add_custom_item(
-    item_data: CustomItemCreate, session: AsyncSession = Depends(get_db)
-):
-    db_item = CustomItem(**item_data.model_dump())
-    session.add(db_item)
-    await session.commit()
-    await session.refresh(db_item)
-    return db_item
-
-
 @route.post("/custom-with-sale", response_model=ItemOnSaleResponse)
 async def add_custom_item_with_sale(
-    custom_item_data: CustomItemCreate,
-    sale_data: ItemOnSaleCreate,
+    combined_data: ItemOnSaleWithCustomItemCreate,
     session: AsyncSession = Depends(get_db),
 ):
-    if not sale_data.custom_item_id:
-        db_custom_item = CustomItem(**custom_item_data.model_dump())
-        session.add(db_custom_item)
-        await session.flush()
+    sale_data = combined_data.sale_data
+    custom_item_data = combined_data.custom_item_data
+
+    db_custom_item = CustomItem(**custom_item_data.model_dump())
+    session.add(db_custom_item)
+    await session.flush()
 
     sale_data_dict = sale_data.model_dump()
     sale_data_dict.update({"custom_item_id": db_custom_item.id})
@@ -127,30 +111,3 @@ async def add_custom_item_with_sale(
     )
 
     return result.scalar_one()
-
-
-@route.put("/custom/{item_id}", response_model=CustomItemResponse)
-async def change_custom_item(
-    item_id: int, item_data: CustomItemCreate, session: AsyncSession = Depends(get_db)
-):
-    item = await session.get(CustomItem, item_id)
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    for field, value in item_data.model_dump().items():
-        setattr(item, field, value)
-
-    await session.commit()
-    await session.refresh(item)
-    return item
-
-
-@route.delete("/custom/{item_id}")
-async def remove_custom_item(item_id: int, session: AsyncSession = Depends(get_db)):
-    item = await session.get(CustomItem, item_id)
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    await session.delete(item)
-    await session.commit()
-    return {"message": "Custom item deleted"}

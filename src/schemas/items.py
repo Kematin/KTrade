@@ -2,8 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel, model_validator
 
-from .base import CSGOItemBase, CustomItemBase
-from .enums import Currency, GameType, Marketplace
+from .base import CSGOItemBase, CustomItemBase, ItemOnSaleBase
+from .enums import Currency, Marketplace
 
 
 class CSGOItemResponse(CSGOItemBase):
@@ -29,25 +29,18 @@ class CustomItemResponse(CustomItemBase):
         from_attributes = True
 
 
-class ItemOnSaleBase(BaseModel):
-    quantity: int = 1
-    game_type: GameType
-    purchase_price: float
-    selling_price: float
-    source_marketplace: Marketplace
-    target_marketplace: Marketplace
-    currency: Currency = Currency.USD
-
-
 class ItemOnSaleCreate(ItemOnSaleBase):
     csgo_item_id: Optional[int] = None
     custom_item_id: Optional[int] = None
 
     @model_validator(mode="after")
     def check_item_reference(cls, model):
-        if model.custom_item_id == -1:
-            return model
-        if model.csgo_item_id is None and model.custom_item_id is None:
+        if model.custom_item_id <= 0:
+            model.custom_item_id = None
+        if model.csgo_item_id <= 0:
+            model.csgo_item_id = None
+
+        if not model.csgo_item_id and not model.custom_item_id:
             raise ValueError("Either csgo_item_id or custom_item_id must be provided")
         if model.csgo_item_id and model.custom_item_id:
             raise ValueError("Only one type of item id can be provided")
@@ -70,3 +63,8 @@ class ItemOnSaleResponse(ItemOnSaleBase):
 
     class Config:
         from_attributes = True
+
+
+class ItemOnSaleWithCustomItemCreate(BaseModel):
+    sale_data: ItemOnSaleBase
+    custom_item_data: CustomItemCreate
